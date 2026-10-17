@@ -386,7 +386,7 @@ Spinner = fun() {
     for (i = 0; i <= spinner.count; i += spinner.steps) {
         spinner[i] = SpriteImage(assets.spinner_base + "/spinner" + i + ".png");
         center_offset = (logo.width / 2) - (spinner[i].width / 2);
-        top_offset = logo.height + 28;
+        top_offset = logo.height + spinner[i].height;
         spinner[i].SetPosition(logo.GetX() + center_offset, logo.GetY() + top_offset, logo.GetZ());
         spinner[i].SetOpacity(0);
     }
@@ -395,14 +395,16 @@ Spinner = fun() {
 } | [];
 
 Spinner.Animate = fun(time) {
-    degrees = Math.Int(time * (360.0 / this.duration));
-    new = (Math.Int(degrees / this.steps) * Math.Int(this.steps)) % this.count;
+    degrees = Math.Int(((2 * Math.Pi / this.duration) * time) * (180 / Math.Pi));
+    new = degrees % this.count;
     old = this.current_idx;
-    if (new != old) {
-        this[old].SetOpacity(0);
-        this[new].SetOpacity(1);
-        this.current_idx = new;
+    if (Math.Int(new) < Math.Int((old + this.steps) % this.count)) {
+        return this;
     }
+    new = Math.Int(new / this.steps) * this.steps;
+    this[old].SetOpacity(0);
+    this[new].SetOpacity(1);
+    this.current_idx = new;
     return this;
 };
 
