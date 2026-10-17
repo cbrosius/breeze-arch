@@ -374,7 +374,7 @@ logo.SetOpacity_(1);
 global.Spinner = [];
 global.Spinner.count = 360;
 global.Spinner.current_idx = 0;
-global.Spinner.steps = 10.0; // We render degrees in increments of 10 to save disk.
+global.Spinner.steps = 10; // We render degrees in increments of 10 to save disk.
 global.Spinner.duration = 1.5; // Seconds per rotation.
 
 Spinner = fun() {
