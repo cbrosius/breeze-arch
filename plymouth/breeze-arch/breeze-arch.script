@@ -446,6 +446,8 @@ global.anim_time = 0.0;
  * \param progress boot progress in % (real 0.0 to 1.0)
  */
 fun boot_progress_cb(time, progress) {
+    spin.Animate(time);
+    logo.SetOpacity_(time * 2.0);
     if (time > global.anim_time) {
         global.anim_time = time;
     }
