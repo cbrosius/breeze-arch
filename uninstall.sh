@@ -11,15 +11,21 @@ if [ "$EUID" -ne 0 ]; then
     exec pkexec bash "$0" "$@"
 fi
 
-echo "[1/5] Restoring Plymouth default theme to breeze..."
+echo "[1/6] Restoring Plymouth default theme to breeze..."
 plymouth-set-default-theme breeze
 rm -rf /usr/share/plymouth/themes/breeze-arch
 
-echo "[2/5] Restoring SDDM theme..."
+echo "[2/6] Restoring SDDM theme..."
 rm -f /etc/sddm.conf.d/10-breeze-arch.conf
 rm -rf /usr/share/sddm/themes/breeze-arch
 
-echo "[3/5] Restoring KSplash..."
+echo "[3/6] Restoring plasmalogin configuration..."
+if [ -f /etc/plasmalogin.conf.bak ]; then
+    cp -vf /etc/plasmalogin.conf.bak /etc/plasmalogin.conf
+fi
+rm -f /var/lib/plasmalogin/wallpapers/background-1920x1080.png
+
+echo "[4/6] Restoring KSplash..."
 rm -rf /usr/share/plasma/look-and-feel/breeze-arch
 
 CALLER_NAME="${SUDO_USER:-}"
@@ -38,7 +44,7 @@ if [ -n "$CALLER_NAME" ]; then
     fi
 fi
 
-echo "[4/5] Restoring mkinitcpio UKI splash..."
+echo "[5/6] Restoring mkinitcpio UKI splash..."
 rm -f /usr/share/systemd/bootctl/splash-arch-breeze.bmp
 PRESET_FILE="/etc/mkinitcpio.d/linux.preset"
 if [ -f "$PRESET_FILE.bak" ]; then
@@ -47,7 +53,7 @@ else
     sed -i 's|--splash [^ "]*|--splash /usr/share/systemd/bootctl/splash-arch.bmp|' "$PRESET_FILE"
 fi
 
-echo "[5/5] Regenerating Unified Kernel Image (mkinitcpio -p linux)..."
+echo "[6/6] Regenerating Unified Kernel Image (mkinitcpio -p linux)..."
 mkinitcpio -p linux
 
 echo "========================================="

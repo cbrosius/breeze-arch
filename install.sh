@@ -14,13 +14,13 @@ if [ "$EUID" -ne 0 ]; then
     exec pkexec bash "$0" "$@"
 fi
 
-echo "[1/6] Installing Plymouth theme..."
+echo "[1/7] Installing Plymouth theme..."
 mkdir -p /usr/share/plymouth/themes/breeze-arch
 cp -rf "$SCRIPT_DIR/plymouth/breeze-arch/"* /usr/share/plymouth/themes/breeze-arch/
 plymouth-set-default-theme breeze-arch
 echo "Active Plymouth theme: $(plymouth-set-default-theme)"
 
-echo "[2/6] Installing SDDM theme..."
+echo "[2/7] Installing SDDM theme..."
 mkdir -p /usr/share/sddm/themes/breeze-arch
 cp -rf "$SCRIPT_DIR/sddm/breeze-arch/"* /usr/share/sddm/themes/breeze-arch/
 mkdir -p /etc/sddm.conf.d
@@ -29,7 +29,30 @@ cat <<EOF > /etc/sddm.conf.d/10-breeze-arch.conf
 Current=breeze-arch
 EOF
 
-echo "[3/6] Installing KSplash theme..."
+echo "[3/7] Configuring plasmalogin (Plasma 6 Login Manager)..."
+mkdir -p /var/lib/plasmalogin/wallpapers
+cp -f "$SCRIPT_DIR/assets/background-1920x1080.png" /var/lib/plasmalogin/wallpapers/background-1920x1080.png
+
+if [ -f /etc/plasmalogin.conf ]; then
+    cp -vb /etc/plasmalogin.conf /etc/plasmalogin.conf.bak || true
+    if grep -q "\[Greeter\]\[Wallpaper\]\[org.kde.image\]\[General\]" /etc/plasmalogin.conf; then
+        sed -i 's|^Image=.*|Image=file:///var/lib/plasmalogin/wallpapers/background-1920x1080.png|' /etc/plasmalogin.conf
+    else
+        cat <<EOF >> /etc/plasmalogin.conf
+
+[Greeter][Wallpaper][org.kde.image][General]
+Image=file:///var/lib/plasmalogin/wallpapers/background-1920x1080.png
+EOF
+    fi
+else
+    cat <<EOF > /etc/plasmalogin.conf
+[Greeter][Wallpaper][org.kde.image][General]
+Image=file:///var/lib/plasmalogin/wallpapers/background-1920x1080.png
+EOF
+fi
+echo "plasmalogin wallpaper set: $(cat /etc/plasmalogin.conf)"
+
+echo "[4/7] Installing KSplash theme..."
 mkdir -p /usr/share/plasma/look-and-feel/breeze-arch
 cp -rf "$SCRIPT_DIR/ksplash/breeze-arch/"* /usr/share/plasma/look-and-feel/breeze-arch/
 
@@ -52,20 +75,21 @@ if [ -n "$CALLER_NAME" ]; then
         
         # Configure KSplash for caller
         su - "$CALLER_NAME" -c "kwriteconfig6 --file ksplashrc --group KSplash --key Theme breeze-arch" || true
+        su - "$CALLER_NAME" -c "kwriteconfig6 --file ksplashrc --group KSplash --key Engine KSplashQML" || true
     fi
 fi
 
-echo "[4/6] Installing UKI boot splash bitmap..."
+echo "[5/7] Installing UKI boot splash bitmap..."
 cp -f "$SCRIPT_DIR/assets/splash-arch.bmp" /usr/share/systemd/bootctl/splash-arch-breeze.bmp
 
-echo "[5/6] Updating mkinitcpio preset..."
+echo "[6/7] Updating mkinitcpio preset..."
 PRESET_FILE="/etc/mkinitcpio.d/linux.preset"
 if [ -f "$PRESET_FILE" ]; then
     cp -vb "$PRESET_FILE" "$PRESET_FILE.bak" || true
     sed -i 's|--splash [^ "]*|--splash /usr/share/systemd/bootctl/splash-arch-breeze.bmp|' "$PRESET_FILE"
 fi
 
-echo "[6/6] Regenerating Unified Kernel Image (mkinitcpio -p linux)..."
+echo "[7/7] Regenerating Unified Kernel Image (mkinitcpio -p linux)..."
 mkinitcpio -p linux
 
 echo "========================================="

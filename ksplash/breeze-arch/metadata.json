@@ -1,0 +1,19 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel/Splash",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "christian@archlinux.local",
+                "Name": "Christian"
+            }
+        ],
+        "Category": "",
+        "Description": "Breeze Arch Splashscreen",
+        "Id": "breeze-arch",
+        "License": "GPLv3",
+        "Name": "Breeze Arch",
+        "Website": ""
+    },
+    "Keywords": "Desktop;Workspace;Appearance;Look and Feel;Logout;Lock;Suspend;Shutdown;Hibernate;",
+    "X-Plasma-APIVersion": "2"
+}

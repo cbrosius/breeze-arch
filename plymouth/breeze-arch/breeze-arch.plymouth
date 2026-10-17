@@ -4,5 +4,5 @@ Description=Breeze with Arch Linux Branding
 ModuleName=script
 
 [script]
-ImageDir=/usr/share/plymouth/themes/breeze-arch/images
+ImageDir=/usr/share/plymouth/themes/breeze-arch
 ScriptFile=/usr/share/plymouth/themes/breeze-arch/breeze-arch.script
