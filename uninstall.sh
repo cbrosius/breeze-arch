@@ -22,11 +22,20 @@ rm -rf /usr/share/sddm/themes/breeze-arch
 echo "[3/5] Restoring KSplash..."
 rm -rf /usr/share/plasma/look-and-feel/breeze-arch
 
-CALLER_USER="${SUDO_USER:-${PKEXEC_UID:-}}"
-if [ -n "$CALLER_USER" ]; then
-    USER_HOME=$(eval echo "~$CALLER_USER")
-    rm -rf "$USER_HOME/.local/share/plasma/look-and-feel/breeze-arch"
-    su - "$CALLER_USER" -c "kwriteconfig6 --file ksplashrc --group KSplash --key Theme org.kde.breeze.desktop" || true
+CALLER_NAME="${SUDO_USER:-}"
+if [ -z "$CALLER_NAME" ] && [ -n "${PKEXEC_UID:-}" ]; then
+    CALLER_NAME=$(id -un "$PKEXEC_UID" 2>/dev/null || true)
+fi
+if [ -z "$CALLER_NAME" ]; then
+    CALLER_NAME="christian"
+fi
+
+if [ -n "$CALLER_NAME" ]; then
+    USER_HOME=$(getent passwd "$CALLER_NAME" | cut -d: -f6)
+    if [ -d "$USER_HOME" ]; then
+        rm -rf "$USER_HOME/.local/share/plasma/look-and-feel/breeze-arch"
+        su - "$CALLER_NAME" -c "kwriteconfig6 --file ksplashrc --group KSplash --key Theme org.kde.breeze.desktop" || true
+    fi
 fi
 
 echo "[4/5] Restoring mkinitcpio UKI splash..."

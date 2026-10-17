@@ -34,16 +34,25 @@ mkdir -p /usr/share/plasma/look-and-feel/breeze-arch
 cp -rf "$SCRIPT_DIR/ksplash/breeze-arch/"* /usr/share/plasma/look-and-feel/breeze-arch/
 
 # Also install for the invoking user if known
-CALLER_USER="${SUDO_USER:-${PKEXEC_UID:-}}"
-if [ -n "$CALLER_USER" ]; then
-    USER_HOME=$(eval echo "~$CALLER_USER")
-    USER_LOOKFEEL="$USER_HOME/.local/share/plasma/look-and-feel/breeze-arch"
-    mkdir -p "$USER_LOOKFEEL"
-    cp -rf "$SCRIPT_DIR/ksplash/breeze-arch/"* "$USER_LOOKFEEL/"
-    chown -R "$CALLER_USER:" "$USER_LOOKFEEL" || true
-    
-    # Configure KSplash for caller
-    su - "$CALLER_USER" -c "kwriteconfig6 --file ksplashrc --group KSplash --key Theme breeze-arch" || true
+CALLER_NAME="${SUDO_USER:-}"
+if [ -z "$CALLER_NAME" ] && [ -n "${PKEXEC_UID:-}" ]; then
+    CALLER_NAME=$(id -un "$PKEXEC_UID" 2>/dev/null || true)
+fi
+if [ -z "$CALLER_NAME" ]; then
+    CALLER_NAME="christian"
+fi
+
+if [ -n "$CALLER_NAME" ]; then
+    USER_HOME=$(getent passwd "$CALLER_NAME" | cut -d: -f6)
+    if [ -d "$USER_HOME" ]; then
+        USER_LOOKFEEL="$USER_HOME/.local/share/plasma/look-and-feel/breeze-arch"
+        mkdir -p "$USER_LOOKFEEL"
+        cp -rf "$SCRIPT_DIR/ksplash/breeze-arch/"* "$USER_LOOKFEEL/"
+        chown -R "$CALLER_NAME:" "$USER_LOOKFEEL" || true
+        
+        # Configure KSplash for caller
+        su - "$CALLER_NAME" -c "kwriteconfig6 --file ksplashrc --group KSplash --key Theme breeze-arch" || true
+    fi
 fi
 
 echo "[4/6] Installing UKI boot splash bitmap..."
