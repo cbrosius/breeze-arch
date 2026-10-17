@@ -32,6 +32,7 @@ EOF
 echo "[3/7] Configuring plasmalogin (Plasma 6 Login Manager)..."
 mkdir -p /var/lib/plasmalogin/wallpapers
 cp -f "$SCRIPT_DIR/assets/background-1920x1080.png" /var/lib/plasmalogin/wallpapers/background-1920x1080.png
+chown -R plasmalogin:plasmalogin /var/lib/plasmalogin/wallpapers 2>/dev/null || true
 
 if [ -f /etc/plasmalogin.conf ]; then
     cp -vb /etc/plasmalogin.conf /etc/plasmalogin.conf.bak || true
