@@ -383,10 +383,7 @@ Spinner = fun() {
     spinner.current_idx = 0;
     spinner.steps = global.Spinner.steps;
     spinner.duration = global.Spinner.duration;
-    for (i = 0; i <= spinner.count; ++i) {
-        if (i % spinner.steps != 0) {
-            continue;
-        }
+    for (i = 0; i <= spinner.count; i += spinner.steps) {
         spinner[i] = SpriteImage(assets.spinner_base + "/spinner" + i + ".png");
         center_offset = (logo.width / 2) - (spinner[i].width / 2);
         top_offset = logo.height + 28;
