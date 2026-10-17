@@ -34,10 +34,10 @@ Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             y: logo.y + logo.height + 28
             source: "images/busy.png"
-            sourceSize.width: 32
-            sourceSize.height: 32
-            width: 32
-            height: 32
+            sourceSize.width: 48
+            sourceSize.height: 48
+            width: 48
+            height: 48
             smooth: true
 
             RotationAnimator on rotation {

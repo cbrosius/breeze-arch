@@ -373,7 +373,7 @@ Spinner = fun() {
         }
         spinner[i] = SpriteImage(assets.spinner_base + "/spinner" + i + ".png");
         center_offset = (logo.width / 2) - (spinner[i].width / 2);
-        top_offset = logo.height + spinner[i].height;
+        top_offset = logo.height + 28;
         spinner[i].SetPosition(logo.GetX() + center_offset, logo.GetY() + top_offset, logo.GetZ());
         spinner[i].SetOpacity(0);
     }
