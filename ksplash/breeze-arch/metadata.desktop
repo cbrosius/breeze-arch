@@ -1,0 +1,9 @@
+[Desktop Entry]
+Comment=Breeze Arch Splash Screen with official Arch Linux branding
+Name=Breeze Arch
+Type=Service
+X-KDE-ServiceTypes=Plasma/LookAndFeel
+X-KDE-PluginInfo-Author=Christian
+X-KDE-PluginInfo-Category=Splash
+X-KDE-PluginInfo-Name=breeze-arch
+X-KDE-PluginInfo-Version=1.0

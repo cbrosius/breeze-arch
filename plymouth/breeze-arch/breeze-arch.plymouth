@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Breeze Arch
+Description=Breeze with Arch Linux Branding
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/breeze-arch/images
+ScriptFile=/usr/share/plymouth/themes/breeze-arch/breeze-arch.script

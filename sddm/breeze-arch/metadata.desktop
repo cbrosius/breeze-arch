@@ -1,0 +1,14 @@
+[SddmGreeterTheme]
+Name=Breeze Arch
+Description=Breeze theme with official Arch Linux branding
+Author=Christian
+Copyright=(c) 2026, Christian
+License=GPL-2.0-or-later
+Type=sddm-theme
+Version=1.0
+Website=https://github.com
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Theme-Id=breeze-arch
+Theme-API=2.0
