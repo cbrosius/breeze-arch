@@ -20,7 +20,7 @@ cp -rf "$SCRIPT_DIR/plymouth/breeze-arch/"* /usr/share/plymouth/themes/breeze-ar
 plymouth-set-default-theme breeze-arch
 echo "Active Plymouth theme: $(plymouth-set-default-theme)"
 
-echo "[2/7] Installing SDDM theme..."
+echo "[2/7] Installing SDDM theme and Plymouth handoff drop-in..."
 mkdir -p /usr/share/sddm/themes/breeze-arch
 cp -rf "$SCRIPT_DIR/sddm/breeze-arch/"* /usr/share/sddm/themes/breeze-arch/
 mkdir -p /etc/sddm.conf.d
@@ -28,6 +28,14 @@ cat <<EOF > /etc/sddm.conf.d/10-breeze-arch.conf
 [Theme]
 Current=breeze-arch
 EOF
+
+# Ensure seamless Plymouth transition to SDDM (retains splash until SDDM draws over it)
+mkdir -p /etc/systemd/system/sddm.service.d
+cat <<EOF > /etc/systemd/system/sddm.service.d/plymouth.conf
+[Service]
+ExecStartPre=-/usr/bin/plymouth quit --retain-splash
+EOF
+
 
 echo "[3/7] Configuring plasmalogin (Plasma 6 Login Manager)..."
 mkdir -p /var/lib/plasmalogin/wallpapers

@@ -19,6 +19,8 @@ rm -rf /usr/share/plymouth/themes/breeze-arch
 
 echo "[2/6] Restoring SDDM theme..."
 rm -f /etc/sddm.conf.d/10-breeze-arch.conf
+rm -f /etc/systemd/system/sddm.service.d/plymouth.conf
+rmdir /etc/systemd/system/sddm.service.d 2>/dev/null || true
 rm -rf /usr/share/sddm/themes/breeze-arch
 
 echo "[3/6] Restoring plasmalogin configuration..."
