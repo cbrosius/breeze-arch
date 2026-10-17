@@ -24,11 +24,13 @@ global.assets = [];
 if (Window.GetBitsPerPixel() == 4) {
     assets.logo          = "images/16bit/arch-logo.png";
     assets.text_input    = "images/16bit/text-input.png";
+    assets.background    = "images/16bit/background.png";
 
     assets.spinner_base  = "images/16bit/spinner";
 } else {
     assets.logo          = "images/arch-logo.png";
     assets.text_input    = "images/text-input.png";
+    assets.background    = "images/background.png";
 
     assets.spinner_base  = "images/spinner";
 }
@@ -327,6 +329,16 @@ fun StringToInteger (str) {
 Window.ApplyBackgroundColors();
 global.backgroundApplied = false;
 
+global.background = [];
+global.background.sprite = Sprite();
+global.background.image = Image(assets.background);
+if (global.background.image) {
+    global.background.scaled = global.background.image.Scale(Window.GetWidth(), Window.GetHeight());
+    global.background.sprite.SetImage(global.background.scaled);
+    global.background.sprite.SetPosition(Window.GetX(), Window.GetY(), -1000);
+    global.background.sprite.SetOpacity(1);
+}
+
 // --------------------------------- Logo ----------------------------------- //
 
 Logo = fun() {
@@ -354,19 +366,23 @@ Logo.SetOpacity_ = fun(o) {
 };
 
 logo = Logo();
-logo.SetOpacity_(0);
+logo.SetOpacity_(1);
 
 
 // ----------------------------- Busy Animation ----------------------------- //
 
+global.Spinner = [];
+global.Spinner.count = 360;
+global.Spinner.current_idx = 0;
+global.Spinner.steps = 10.0; // We render degrees in increments of 10 to save disk.
+global.Spinner.duration = 1.5; // Seconds per rotation.
+
 Spinner = fun() {
-    // FIXME: try to use this=
     spinner = global.Spinner | [];
-    spinner.count = 360;
+    spinner.count = global.Spinner.count;
     spinner.current_idx = 0;
-    spinner.last_time = 0;
-    spinner.steps = 10.0; // We render degrees in increments of 10 to save disk.
-    spinner.duration = 1.5; // Seconds per rotation.
+    spinner.steps = global.Spinner.steps;
+    spinner.duration = global.Spinner.duration;
     for (i = 0; i <= spinner.count; ++i) {
         if (i % spinner.steps != 0) {
             continue;
@@ -377,27 +393,19 @@ Spinner = fun() {
         spinner[i].SetPosition(logo.GetX() + center_offset, logo.GetY() + top_offset, logo.GetZ());
         spinner[i].SetOpacity(0);
     }
+    spinner[0].SetOpacity(1);
     return spinner;
 } | [];
 
 Spinner.Animate = fun(time) {
-    degrees = Math.Int(((2 * Math.Pi / duration) * time) * (180 / Math.Pi));
-    new = degrees % count;
-    old = current_idx;
-    if (Math.Int(new) < Math.Int((old + steps) % count)) {
-        // Every $steps degrees we can render a frame, all others we skip.
-        return;
+    degrees = Math.Int(time * (360.0 / this.duration));
+    new = (Math.Int(degrees / this.steps) * Math.Int(this.steps)) % this.count;
+    old = this.current_idx;
+    if (new != old) {
+        this[old].SetOpacity(0);
+        this[new].SetOpacity(1);
+        this.current_idx = new;
     }
-    // We set a second new which is now a correct index bump by coercing it
-    // into a multiple of 10.
-    new = Math.Int(new / steps) * steps;
-    // Debug("going from " + old + " to " + new);
-    // dps = time - last_time;
-    // DebugMedium("dps " + dps*35);
-    // last_time = time;
-    this[old].SetOpacity(0);
-    this[new].SetOpacity(1);
-    current_idx = new;
     return this;
 };
 
@@ -431,14 +439,17 @@ top_of_the_text = TextYOffset();
 
 // ----------------------------- Boot Progress ------------------------------ //
 
+global.anim_time = 0.0;
+
 /**
  * Implement boot progress callback
  * \param time time elapsed since boot start (real, seconds)
  * \param progress boot progress in % (real 0.0 to 1.0)
  */
 fun boot_progress_cb(time, progress) {
-    spin.Animate(time);
-    logo.SetOpacity_(time * 2.0);
+    if (time > global.anim_time) {
+        global.anim_time = time;
+    }
 }
 Plymouth.SetBootProgressFunction (boot_progress_cb);
 
@@ -1078,14 +1089,23 @@ Plymouth.SetUpdateStatusFunction (update_status_callback);
  *      the screen correctly
  */
 fun refresh_callback() {
-    // With some nvidia systems when using the script theme the initial
+    // With some systems when using the script theme the initial
     // background drawing happens too soon, so we do an additional "fallback"
     // draw run when the first refresh callback arrives. This should make sure
     // that we always have a background drawn.
     if (!global.backgroundApplied) {
         global.backgroundApplied = true;
         Window.ApplyBackgroundColors();
+        if (global.background.image && !global.background.scaled) {
+            global.background.scaled = global.background.image.Scale(Window.GetWidth(), Window.GetHeight());
+            global.background.sprite.SetImage(global.background.scaled);
+            global.background.sprite.SetPosition(Window.GetX(), Window.GetY(), -1000);
+            global.background.sprite.SetOpacity(1);
+        }
     }
+
+    global.anim_time += 1.0 / 50.0;
+    spin.Animate(global.anim_time);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 
@@ -1110,7 +1130,13 @@ Plymouth.SetDisplayNormalFunction (display_normal_callback);
  * Switch to final state.
  */
 fun quit_callback() {
-  logo.SetOpacity_(0);
+    logo.SetOpacity_(0);
+    if (spin) {
+        spin[spin.current_idx].SetOpacity(0);
+    }
+    if (global.background && global.background.sprite) {
+        global.background.sprite.SetOpacity(0);
+    }
 }
 Plymouth.SetQuitFunction(quit_callback);
 

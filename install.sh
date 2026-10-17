@@ -11,7 +11,7 @@ echo "========================================="
 if [ "$EUID" -ne 0 ]; then
     echo "This script must be run as root (or via pkexec/sudo)."
     echo "Re-executing with pkexec..."
-    exec pkexec bash "$0" "$@"
+    exec pkexec bash "$SCRIPT_DIR/install.sh" "$@"
 fi
 
 echo "[1/7] Installing Plymouth theme..."
